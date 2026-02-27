@@ -5,7 +5,7 @@
 @layer base {
   :root {
     --background: #ffffff;
-    --surface: #fafafa;
+    --surface: #fafafa; /* 카드, 시트 등 레이어드 배경 */
   }
 
   .dark {
@@ -20,16 +20,11 @@
   }
 
   body {
-    @apply bg-background text-zinc-900;
-  }
-
-  .dark body {
-    @apply bg-background text-zinc-50;
+    @apply bg-background text-zinc-900 dark:text-zinc-50;
   }
 
   /* 모바일 웹 기본 레이아웃: 최대 430px 중앙 정렬 */
   #root {
-    @apply mx-auto min-h-dvh max-w-mobile
-           shadow-[4px_0_8px_rgba(0,0,0,0.05),-4px_0_8px_rgba(0,0,0,0.05)];
+    @apply mx-auto min-h-dvh max-w-mobile shadow-mobile-edge;
   }
 }
