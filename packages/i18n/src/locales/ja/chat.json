@@ -1,0 +1,10 @@
+{
+  "startChat": "会話を始める",
+  "emptyChat": "まだ会話がありません",
+  "findFriends": "友達を探しに行く",
+  "messagePlaceholder": "メッセージを入力",
+  "send": "送信",
+  "translating": "翻訳中...",
+  "translationFailed": "翻訳失敗",
+  "typing": "{{name}}さんが入力中..."
+}

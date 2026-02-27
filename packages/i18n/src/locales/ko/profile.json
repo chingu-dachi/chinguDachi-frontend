@@ -1,0 +1,17 @@
+{
+  "editProfile": "프로필 수정",
+  "chargeCredits": "크레딧 충전하기",
+  "creditComingSoon": "추후 도입 예정입니다",
+  "freeBeta": "현재 무료 베타 기간입니다",
+  "logout": "로그아웃",
+  "deleteAccount": "회원탈퇴",
+  "terms": "서비스 이용약관",
+  "logoutConfirmTitle": "로그아웃",
+  "logoutConfirmDesc": "정말 로그아웃하시겠습니까?",
+  "deleteConfirmTitle": "회원탈퇴",
+  "deleteConfirmDesc": "탈퇴 시 모든 데이터가 삭제됩니다. 정말 탈퇴하시겠습니까?",
+  "profileUpdated": "프로필이 수정되었습니다",
+  "profileUpdateError": "프로필 수정 중 오류가 발생했습니다",
+  "cancel": "취소",
+  "save": "저장"
+}

@@ -1,0 +1,17 @@
+{
+  "editProfile": "プロフィール編集",
+  "chargeCredits": "クレジット購入",
+  "creditComingSoon": "今後導入予定です",
+  "freeBeta": "現在無料ベータ期間です",
+  "logout": "ログアウト",
+  "deleteAccount": "退会",
+  "terms": "利用規約",
+  "logoutConfirmTitle": "ログアウト",
+  "logoutConfirmDesc": "本当にログアウトしますか？",
+  "deleteConfirmTitle": "退会",
+  "deleteConfirmDesc": "退会するとすべてのデータが削除されます。本当に退会しますか？",
+  "profileUpdated": "プロフィールが更新されました",
+  "profileUpdateError": "プロフィール更新中にエラーが発生しました",
+  "cancel": "キャンセル",
+  "save": "保存"
+}

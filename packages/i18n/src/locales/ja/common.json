@@ -1,0 +1,20 @@
+{
+  "appName": "チングダチ",
+  "loading": "読み込み中...",
+  "error": "エラーが発生しました",
+  "retry": "再試行",
+  "cancel": "キャンセル",
+  "confirm": "確認",
+  "save": "保存",
+  "delete": "削除",
+  "back": "戻る",
+  "next": "次へ",
+  "done": "完了",
+  "search": "検索",
+  "noResults": "結果がありません",
+  "tabs": {
+    "home": "ホーム",
+    "chat": "チャット",
+    "mypage": "マイ"
+  }
+}

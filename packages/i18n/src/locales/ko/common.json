@@ -1,0 +1,20 @@
+{
+  "appName": "친구다치",
+  "loading": "로딩 중...",
+  "error": "오류가 발생했습니다",
+  "retry": "다시 시도",
+  "cancel": "취소",
+  "confirm": "확인",
+  "save": "저장",
+  "delete": "삭제",
+  "back": "뒤로",
+  "next": "다음",
+  "done": "완료",
+  "search": "검색",
+  "noResults": "결과가 없습니다",
+  "tabs": {
+    "home": "홈",
+    "chat": "채팅",
+    "mypage": "마이"
+  }
+}
