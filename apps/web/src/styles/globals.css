@@ -3,6 +3,16 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --background: #ffffff;
+    --surface: #fafafa;
+  }
+
+  .dark {
+    --background: #18181b; /* zinc-900 */
+    --surface: #27272a; /* zinc-800 */
+  }
+
   html {
     font-family: 'Pretendard', 'Noto Sans JP', sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -10,11 +20,16 @@
   }
 
   body {
-    @apply bg-white text-gray-900;
+    @apply bg-background text-zinc-900;
+  }
+
+  .dark body {
+    @apply bg-background text-zinc-50;
   }
 
   /* 모바일 웹 기본 레이아웃: 최대 430px 중앙 정렬 */
   #root {
-    @apply mx-auto min-h-dvh max-w-mobile;
+    @apply mx-auto min-h-dvh max-w-mobile
+           shadow-[4px_0_8px_rgba(0,0,0,0.05),-4px_0_8px_rgba(0,0,0,0.05)];
   }
 }
