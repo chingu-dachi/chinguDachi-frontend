@@ -1,5 +1,8 @@
 import ky from 'ky';
 import { getApiBaseUrl } from '@chingu-dachi/shared';
+import { tokenManager } from './token';
+
+const RETRY_HEADER = 'X-Auth-Retry';
 
 /**
  * ky 인스턴스 — 인증 토큰 자동 주입 + 401 시 토큰 리프레시
@@ -10,7 +13,7 @@ export const httpClient = ky.create({
   hooks: {
     beforeRequest: [
       (request) => {
-        const token = localStorage.getItem('access_token');
+        const token = tokenManager.get();
         if (token) {
           request.headers.set('Authorization', `Bearer ${token}`);
         }
@@ -18,7 +21,10 @@ export const httpClient = ky.create({
     ],
     afterResponse: [
       async (request, _options, response) => {
-        if (response.status === 401) {
+        if (
+          response.status === 401 &&
+          !request.headers.has(RETRY_HEADER)
+        ) {
           try {
             const refreshResponse = await ky
               .post(`${getApiBaseUrl()}/auth/refresh`, {
@@ -26,14 +32,15 @@ export const httpClient = ky.create({
               })
               .json<{ accessToken: string }>();
 
-            localStorage.setItem('access_token', refreshResponse.accessToken);
+            tokenManager.set(refreshResponse.accessToken);
             request.headers.set(
               'Authorization',
               `Bearer ${refreshResponse.accessToken}`,
             );
+            request.headers.set(RETRY_HEADER, '1');
             return ky(request);
           } catch {
-            localStorage.removeItem('access_token');
+            tokenManager.clear();
             window.location.href = '/login';
             return response;
           }

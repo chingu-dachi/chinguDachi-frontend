@@ -1,5 +1,6 @@
 import { io, type Socket } from 'socket.io-client';
 import { getWsUrl } from '@chingu-dachi/shared';
+import { tokenManager } from '../http/token';
 import type { ClientToServerEvents, ServerToClientEvents } from './types';
 
 export type TypedSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -14,8 +15,7 @@ export function getSocket(): TypedSocket {
     socket = io(getWsUrl(), {
       autoConnect: false,
       auth: () => {
-        const token = localStorage.getItem('access_token');
-        return { token };
+        return { token: tokenManager.get() };
       },
       reconnection: true,
       reconnectionAttempts: 5,

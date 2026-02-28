@@ -1,4 +1,5 @@
 export { httpClient } from './http/client';
+export { tokenManager } from './http/token';
 export { authApi, type AuthTokens } from './http/auth.api';
 export { userApi } from './http/user.api';
 export { chatApi } from './http/chat.api';
