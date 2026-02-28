@@ -36,3 +36,8 @@ export const MOCK_NEW_USER: User = {
   creditBalance: 0,
   onboardingRequired: true,
 };
+
+/** MSW 핸들러 간 상태 공유 (로그인 시 유저 정보 저장) */
+export const mockState = {
+  currentUser: null as User | null,
+};
