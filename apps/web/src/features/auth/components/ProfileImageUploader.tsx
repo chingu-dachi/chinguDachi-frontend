@@ -23,7 +23,7 @@ export function ProfileImageUploader({
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || isUploading) return;
 
     setError(null);
 
@@ -43,6 +43,8 @@ export function ProfileImageUploader({
       const res = await uploadApi.profileImage(resized);
       if (res.success) {
         onChange(res.data.imageUrl);
+      } else {
+        setError(t('uploadFailed'));
       }
     } catch {
       setError(t('uploadFailed'));
@@ -59,24 +61,28 @@ export function ProfileImageUploader({
       <div className="relative">
         <Avatar
           src={imageUrl}
-          alt="프로필 사진"
+          alt={t('profileImage')}
           size="xl"
           editable={!isUploading}
           onEdit={() => fileInputRef.current?.click()}
         />
         {isUploading && (
-          <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/30">
+          <div
+            className="absolute inset-0 flex items-center justify-center rounded-full bg-black/30"
+            role="status"
+          >
             <Spinner />
+            <span className="sr-only">{t('uploading')}</span>
           </div>
         )}
       </div>
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept={ALLOWED_TYPES.join(',')}
         className="hidden"
         onChange={handleFileChange}
-        aria-label="프로필 사진 업로드"
+        aria-label={t('uploadProfileImage')}
       />
       {error && (
         <p className="text-caption text-danger" role="alert">

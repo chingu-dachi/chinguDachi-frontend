@@ -1,19 +1,24 @@
-const MAX_SIZE = 500;
+const PROFILE_IMAGE_MAX_DIMENSION_PX = 500;
+const JPEG_QUALITY = 0.8;
 
 export function resizeImage(file: File): Promise<File> {
   return new Promise((resolve, reject) => {
     const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+
     img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+
       const canvas = document.createElement('canvas');
       let { width, height } = img;
 
-      if (width > MAX_SIZE || height > MAX_SIZE) {
+      if (width > PROFILE_IMAGE_MAX_DIMENSION_PX || height > PROFILE_IMAGE_MAX_DIMENSION_PX) {
         if (width > height) {
-          height = Math.round((height * MAX_SIZE) / width);
-          width = MAX_SIZE;
+          height = Math.round((height * PROFILE_IMAGE_MAX_DIMENSION_PX) / width);
+          width = PROFILE_IMAGE_MAX_DIMENSION_PX;
         } else {
-          width = Math.round((width * MAX_SIZE) / height);
-          height = MAX_SIZE;
+          width = Math.round((width * PROFILE_IMAGE_MAX_DIMENSION_PX) / height);
+          height = PROFILE_IMAGE_MAX_DIMENSION_PX;
         }
       }
 
@@ -24,6 +29,9 @@ export function resizeImage(file: File): Promise<File> {
         reject(new Error('Canvas context not available'));
         return;
       }
+      // JPEG 변환 시 투명 배경이 검은색이 되지 않도록 흰색 배경 채움
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, width, height);
       ctx.drawImage(img, 0, 0, width, height);
       canvas.toBlob(
         (blob) => {
@@ -31,13 +39,17 @@ export function resizeImage(file: File): Promise<File> {
             reject(new Error('Failed to create blob'));
             return;
           }
-          resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+          const outputName = file.name.replace(/\.[^.]+$/, '.jpg');
+          resolve(new File([blob], outputName, { type: 'image/jpeg' }));
         },
         'image/jpeg',
-        0.8,
+        JPEG_QUALITY,
       );
     };
-    img.onerror = () => reject(new Error('Failed to load image'));
-    img.src = URL.createObjectURL(file);
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error('Failed to load image'));
+    };
+    img.src = objectUrl;
   });
 }
