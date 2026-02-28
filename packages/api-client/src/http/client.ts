@@ -41,7 +41,6 @@ export const httpClient = ky.create({
             return ky(request);
           } catch {
             tokenManager.clear();
-            window.location.href = '/';
             return response;
           }
         }

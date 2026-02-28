@@ -1,5 +1,11 @@
-import { useRef } from 'react';
-import { Avatar } from '@/components/ui';
+import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { uploadApi } from '@chingu-dachi/api-client';
+import { Avatar, Spinner } from '@/components/ui';
+import { resizeImage } from '@/lib/image-resize';
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
 interface ProfileImageUploaderProps {
   imageUrl: string | null;
@@ -10,26 +16,60 @@ export function ProfileImageUploader({
   imageUrl,
   onChange,
 }: ProfileImageUploaderProps) {
+  const { t } = useTranslation('auth');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // MVP: 로컬 프리뷰 URL 생성 (실제 업로드는 백엔드 연동 시 구현)
-    const url = URL.createObjectURL(file);
-    onChange(url);
+    setError(null);
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setError(t('invalidFileType'));
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setError(t('fileTooLarge'));
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const resized = await resizeImage(file);
+      const res = await uploadApi.profileImage(resized);
+      if (res.success) {
+        onChange(res.data.imageUrl);
+      }
+    } catch {
+      setError(t('uploadFailed'));
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
   }
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <Avatar
-        src={imageUrl}
-        alt="프로필 사진"
-        size="xl"
-        editable
-        onEdit={() => fileInputRef.current?.click()}
-      />
+      <div className="relative">
+        <Avatar
+          src={imageUrl}
+          alt="프로필 사진"
+          size="xl"
+          editable={!isUploading}
+          onEdit={() => fileInputRef.current?.click()}
+        />
+        {isUploading && (
+          <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/30">
+            <Spinner />
+          </div>
+        )}
+      </div>
       <input
         ref={fileInputRef}
         type="file"
@@ -38,6 +78,11 @@ export function ProfileImageUploader({
         onChange={handleFileChange}
         aria-label="프로필 사진 업로드"
       />
+      {error && (
+        <p className="text-caption text-danger" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
