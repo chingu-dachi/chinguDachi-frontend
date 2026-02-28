@@ -3,10 +3,15 @@ import { MOCK_API_BASE, MOCK_USER, TAKEN_NICKNAMES, mockState } from '../data/fi
 
 export const userHandlers = [
   http.get(`${MOCK_API_BASE}/users/me`, () => {
-    const user = mockState.currentUser ?? MOCK_USER;
+    if (!mockState.currentUser) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'UNAUTHORIZED', message: 'Not authenticated' } },
+        { status: 401 },
+      );
+    }
     return HttpResponse.json({
       success: true,
-      data: user,
+      data: mockState.currentUser,
     });
   }),
 
