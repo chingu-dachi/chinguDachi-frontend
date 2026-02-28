@@ -37,7 +37,36 @@ export const MOCK_NEW_USER: User = {
   onboardingRequired: true,
 };
 
-/** MSW 핸들러 간 상태 공유 (로그인 시 유저 정보 저장) */
+/**
+ * MSW 핸들러 간 상태 공유 (sessionStorage 기반 — 페이지 리로드 후에도 유지)
+ * 실제 백엔드의 httpOnly 쿠키 세션을 시뮬레이션
+ */
 export const mockState = {
-  currentUser: null as User | null,
+  get currentUser(): User | null {
+    const stored = sessionStorage.getItem('msw:currentUser');
+    if (!stored) return null;
+    try {
+      return JSON.parse(stored) as User;
+    } catch {
+      sessionStorage.removeItem('msw:currentUser');
+      return null;
+    }
+  },
+  set currentUser(user: User | null) {
+    if (user) {
+      sessionStorage.setItem('msw:currentUser', JSON.stringify(user));
+    } else {
+      sessionStorage.removeItem('msw:currentUser');
+    }
+  },
+  get hasSession(): boolean {
+    return sessionStorage.getItem('msw:hasSession') === 'true';
+  },
+  set hasSession(value: boolean) {
+    if (value) {
+      sessionStorage.setItem('msw:hasSession', 'true');
+    } else {
+      sessionStorage.removeItem('msw:hasSession');
+    }
+  },
 };
