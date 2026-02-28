@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { Nationality, InterestTagId } from '@chingu-dachi/shared';
 import { useSetupProfile, authKeys } from '@chingu-dachi/store';
+import { HTTPError } from '@chingu-dachi/api-client';
 import { useQueryClient } from '@tanstack/react-query';
 import { BackHeader } from '@/components/layout';
 import { Button } from '@/components/ui';
@@ -63,7 +64,7 @@ export function OnboardingPage() {
           navigate('/home', { replace: true });
         },
         onError: (error) => {
-          if (error instanceof Error && error.message.includes('409')) {
+          if (error instanceof HTTPError && error.response.status === 409) {
             toast('error', t('nicknameDuplicate'));
           } else {
             toast('error', t('onboardingError'));
