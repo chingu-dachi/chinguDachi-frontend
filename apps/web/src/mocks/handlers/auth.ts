@@ -4,6 +4,7 @@ import {
   MOCK_ACCESS_TOKEN,
   MOCK_USER,
   MOCK_NEW_USER,
+  mockState,
 } from '../data/fixtures';
 
 export const authHandlers = [
@@ -11,6 +12,7 @@ export const authHandlers = [
     const body = (await request.json()) as { code: string };
 
     if (body.code === 'new-user-code') {
+      mockState.currentUser = { ...MOCK_NEW_USER };
       return HttpResponse.json({
         success: true,
         data: {
@@ -21,6 +23,7 @@ export const authHandlers = [
       });
     }
 
+    mockState.currentUser = { ...MOCK_USER };
     return HttpResponse.json({
       success: true,
       data: {
@@ -39,6 +42,7 @@ export const authHandlers = [
   }),
 
   http.post(`${MOCK_API_BASE}/auth/logout`, () => {
+    mockState.currentUser = null;
     return HttpResponse.json({ success: true, data: null });
   }),
 ];

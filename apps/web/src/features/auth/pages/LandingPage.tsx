@@ -1,13 +1,12 @@
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui';
-
-const GOOGLE_AUTH_URL = `${import.meta.env.VITE_API_URL ?? 'http://localhost:8080'}/api/auth/google`;
+import { buildGoogleOAuthUrl } from '@/lib/oauth';
 
 export function LandingPage() {
   const { t } = useTranslation('auth');
 
   function handleGoogleLogin() {
-    window.location.href = GOOGLE_AUTH_URL;
+    window.location.href = buildGoogleOAuthUrl();
   }
 
   return (

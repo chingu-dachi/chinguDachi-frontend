@@ -1,11 +1,12 @@
 import { http, HttpResponse } from 'msw';
-import { MOCK_API_BASE, MOCK_USER, TAKEN_NICKNAMES } from '../data/fixtures';
+import { MOCK_API_BASE, MOCK_USER, TAKEN_NICKNAMES, mockState } from '../data/fixtures';
 
 export const userHandlers = [
   http.get(`${MOCK_API_BASE}/users/me`, () => {
+    const user = mockState.currentUser ?? MOCK_USER;
     return HttpResponse.json({
       success: true,
-      data: MOCK_USER,
+      data: user,
     });
   }),
 
@@ -22,9 +23,11 @@ export const userHandlers = [
       );
     }
 
+    const updatedUser = { ...(mockState.currentUser ?? MOCK_USER), ...body, onboardingRequired: false };
+    mockState.currentUser = updatedUser;
     return HttpResponse.json({
       success: true,
-      data: { ...MOCK_USER, ...body, onboardingRequired: false },
+      data: updatedUser,
     });
   }),
 
