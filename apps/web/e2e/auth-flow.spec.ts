@@ -31,3 +31,42 @@ test.describe('OAuth Callback', () => {
     await expect(page).toHaveURL('/');
   });
 });
+
+test.describe('AuthGuard 세션', () => {
+  test('인증된 상태에서 페이지 새로고침 시 세션이 유지된다', async ({ page }) => {
+    await page.goto('/auth/callback?code=existing-user-code');
+    await expect(page).toHaveURL('/home');
+    await page.reload();
+    await expect(page).toHaveURL('/home');
+  });
+
+  test('비인증 유저가 /home 접근 시 /로 리다이렉트된다', async ({ page }) => {
+    await page.goto('/home');
+    await expect(page).toHaveURL('/');
+  });
+
+  test('refresh 실패 시 랜딩으로 리다이렉트된다', async ({ page }) => {
+    await page.route('**/api/users/me', (route) =>
+      route.fulfill({
+        status: 401,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: false,
+          error: { code: 'UNAUTHORIZED', message: 'Unauthorized' },
+        }),
+      }),
+    );
+    await page.route('**/api/auth/refresh', (route) =>
+      route.fulfill({
+        status: 401,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: false,
+          error: { code: 'UNAUTHORIZED', message: 'Refresh failed' },
+        }),
+      }),
+    );
+    await page.goto('/home');
+    await expect(page).toHaveURL('/');
+  });
+});

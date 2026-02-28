@@ -1,7 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { useAuthStore } from '@chingu-dachi/store';
+import { useAuthStore, useMe } from '@chingu-dachi/store';
 import { Spinner } from '@/components/ui';
-import { useMe } from '@chingu-dachi/store';
 
 interface AuthGuardProps {
   requireOnboarding?: boolean;
@@ -10,7 +9,7 @@ interface AuthGuardProps {
 export function AuthGuard({ requireOnboarding = false }: AuthGuardProps) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const user = useAuthStore((s) => s.user);
-  const { isLoading } = useMe();
+  const { isLoading, isError } = useMe();
 
   if (isLoading) {
     return (
@@ -20,7 +19,7 @@ export function AuthGuard({ requireOnboarding = false }: AuthGuardProps) {
     );
   }
 
-  if (!isAuthenticated) {
+  if (isError || !isAuthenticated) {
     return <Navigate to="/" replace />;
   }
 
