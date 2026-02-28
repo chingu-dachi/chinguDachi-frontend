@@ -4,11 +4,12 @@ import { cn } from '@/lib/cn';
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
+  success?: string;
   counter?: { current: number; max: number };
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  function Input({ className, label, error, counter, id, ...props }, ref) {
+  function Input({ className, label, error, success, counter, id, ...props }, ref) {
     const inputId = id ?? label?.replace(/\s/g, '-').toLowerCase();
 
     return (
@@ -27,19 +28,25 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             'focus:border-primary focus:ring-1 focus:ring-primary',
             error
               ? 'border-danger focus:border-danger focus:ring-danger'
-              : 'border-gray-300',
+              : success
+                ? 'border-success focus:border-success focus:ring-success'
+                : 'border-gray-300',
             className,
           )}
           aria-invalid={!!error}
-          aria-describedby={error ? `${inputId}-error` : undefined}
+          aria-describedby={error ? `${inputId}-error` : success ? `${inputId}-success` : undefined}
           {...props}
         />
         <div className="flex items-center justify-between">
-          {error && (
+          {error ? (
             <p id={`${inputId}-error`} className="text-caption text-danger" role="alert">
               {error}
             </p>
-          )}
+          ) : success ? (
+            <p id={`${inputId}-success`} className="text-caption text-success" aria-live="polite">
+              {success}
+            </p>
+          ) : null}
           {counter && (
             <p className={cn('ml-auto text-caption', counter.current > counter.max ? 'text-danger' : 'text-gray-400')}>
               {counter.current}/{counter.max}
