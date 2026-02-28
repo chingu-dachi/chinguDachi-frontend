@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { authApi, userApi } from '@chingu-dachi/api-client';
+import { authApi, userApi, tokenManager } from '@chingu-dachi/api-client';
 import { useAuthStore } from '../stores/auth.store';
 import { authKeys } from './query-keys';
 
@@ -28,8 +28,7 @@ export function useLogin() {
       authApi.loginWithOAuth(provider, code),
     onSuccess: (res) => {
       if (res.success) {
-        localStorage.setItem('access_token', res.data.accessToken);
-        localStorage.setItem('refresh_token', res.data.refreshToken);
+        tokenManager.set(res.data.accessToken);
         setUser(res.data.user);
         queryClient.invalidateQueries({ queryKey: authKeys.all });
       }
@@ -44,8 +43,7 @@ export function useLogout() {
   return useMutation({
     mutationFn: () => authApi.logout(),
     onSettled: () => {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
+      tokenManager.clear();
       clearUser();
       queryClient.clear();
     },

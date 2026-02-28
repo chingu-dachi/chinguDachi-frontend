@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { userApi } from '@chingu-dachi/api-client';
+import { userApi, tokenManager } from '@chingu-dachi/api-client';
 import type { OnboardingInput, ProfileEditInput } from '@chingu-dachi/shared';
 import { useAuthStore } from '../stores/auth.store';
 import { authKeys, userKeys } from './query-keys';
@@ -50,8 +50,7 @@ export function useDeleteAccount() {
   return useMutation({
     mutationFn: () => userApi.deleteAccount(),
     onSuccess: () => {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
+      tokenManager.clear();
       clearUser();
       queryClient.clear();
     },
