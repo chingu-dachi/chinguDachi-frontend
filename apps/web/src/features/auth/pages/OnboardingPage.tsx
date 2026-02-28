@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { Nationality, InterestTagId } from '@chingu-dachi/shared';
+import { useSetupProfile, authKeys } from '@chingu-dachi/store';
+import { HTTPError } from '@chingu-dachi/api-client';
+import { useQueryClient } from '@tanstack/react-query';
 import { BackHeader } from '@/components/layout';
 import { Button } from '@/components/ui';
 import { useToast } from '@/hooks/useToast';
@@ -19,37 +22,56 @@ export function OnboardingPage() {
   const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const setupProfile = useSetupProfile();
 
   const [nationality, setNationality] = useState<Nationality | null>(null);
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
   const [nickname, setNickname] = useState('');
+  const [isNicknameValid, setIsNicknameValid] = useState(false);
   const [birthYear, setBirthYear] = useState<number | null>(null);
   const [interests, setInterests] = useState<InterestTagId[]>([]);
   const [bio, setBio] = useState('');
   const [city, setCity] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleNicknameValidation = useCallback((valid: boolean) => {
+    setIsNicknameValid(valid);
+  }, []);
 
   const isValid =
     nationality !== null &&
-    nickname.length >= 2 &&
-    nickname.length <= 12 &&
+    isNicknameValid &&
     birthYear !== null &&
     interests.length >= 1;
 
-  async function handleSubmit() {
+  function handleSubmit() {
     if (!isValid || !nationality || !birthYear) return;
 
-    setIsSubmitting(true);
-    try {
-      // TODO: useSetupProfile API 연동
-      // await setupProfile({ nationality, nickname, birthYear, interests, bio, city, profileImageUrl });
-      toast('success', t('onboardingComplete'));
-      navigate('/home', { replace: true });
-    } catch {
-      toast('error', t('onboardingError'));
-    } finally {
-      setIsSubmitting(false);
-    }
+    setupProfile.mutate(
+      {
+        nationality,
+        nickname: nickname.trim(),
+        birthYear,
+        interests,
+        bio: bio.trim() || undefined,
+        city: city.trim() || undefined,
+        profileImageUrl: profileImageUrl ?? undefined,
+      },
+      {
+        onSuccess: () => {
+          toast('success', t('onboardingComplete'));
+          queryClient.invalidateQueries({ queryKey: authKeys.me() });
+          navigate('/home', { replace: true });
+        },
+        onError: (error) => {
+          if (error instanceof HTTPError && error.response.status === 409) {
+            toast('error', t('nicknameDuplicate'));
+          } else {
+            toast('error', t('onboardingError'));
+          }
+        },
+      },
+    );
   }
 
   return (
@@ -70,6 +92,7 @@ export function OnboardingPage() {
           <NicknameInput
             value={nickname}
             onChange={setNickname}
+            onValidation={handleNicknameValidation}
           />
 
           <BirthYearPicker
@@ -93,7 +116,7 @@ export function OnboardingPage() {
           fullWidth
           size="lg"
           disabled={!isValid}
-          loading={isSubmitting}
+          loading={setupProfile.isPending}
           onClick={handleSubmit}
         >
           {t('completeSignup')}
