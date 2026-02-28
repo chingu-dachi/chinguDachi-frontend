@@ -6,6 +6,7 @@ import { getApiBaseUrl } from '@chingu-dachi/shared';
  */
 export const httpClient = ky.create({
   prefixUrl: getApiBaseUrl(),
+  credentials: 'include',
   hooks: {
     beforeRequest: [
       (request) => {
@@ -18,18 +19,10 @@ export const httpClient = ky.create({
     afterResponse: [
       async (request, _options, response) => {
         if (response.status === 401) {
-          const refreshToken = localStorage.getItem('refresh_token');
-          if (!refreshToken) {
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
-            window.location.href = '/login';
-            return response;
-          }
-
           try {
             const refreshResponse = await ky
               .post(`${getApiBaseUrl()}/auth/refresh`, {
-                json: { refreshToken },
+                credentials: 'include',
               })
               .json<{ accessToken: string }>();
 
@@ -41,7 +34,6 @@ export const httpClient = ky.create({
             return ky(request);
           } catch {
             localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
             window.location.href = '/login';
             return response;
           }

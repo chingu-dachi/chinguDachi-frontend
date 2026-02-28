@@ -3,19 +3,19 @@ import { httpClient } from './client';
 
 export interface AuthTokens {
   accessToken: string;
-  refreshToken: string;
+  onboardingRequired: boolean;
   user: User;
 }
 
 export const authApi = {
   loginWithOAuth: (provider: string, code: string) =>
     httpClient
-      .post('auth/login', { json: { provider, code } })
+      .post('auth/google', { json: { provider, code } })
       .json<ApiResponse<AuthTokens>>(),
 
-  refreshToken: (refreshToken: string) =>
+  refreshToken: () =>
     httpClient
-      .post('auth/refresh', { json: { refreshToken } })
+      .post('auth/refresh')
       .json<ApiResponse<{ accessToken: string }>>(),
 
   logout: () => httpClient.post('auth/logout').json<ApiResponse<null>>(),

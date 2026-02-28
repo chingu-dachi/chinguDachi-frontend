@@ -51,7 +51,6 @@ export function useDeleteAccount() {
     mutationFn: () => userApi.deleteAccount(),
     onSuccess: () => {
       localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
       clearUser();
       queryClient.clear();
     },

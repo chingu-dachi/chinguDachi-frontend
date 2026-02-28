@@ -29,7 +29,6 @@ export function useLogin() {
     onSuccess: (res) => {
       if (res.success) {
         localStorage.setItem('access_token', res.data.accessToken);
-        localStorage.setItem('refresh_token', res.data.refreshToken);
         setUser(res.data.user);
         queryClient.invalidateQueries({ queryKey: authKeys.all });
       }
@@ -45,7 +44,6 @@ export function useLogout() {
     mutationFn: () => authApi.logout(),
     onSettled: () => {
       localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
       clearUser();
       queryClient.clear();
     },
