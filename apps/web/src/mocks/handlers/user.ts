@@ -1,24 +1,18 @@
 import { http, HttpResponse } from 'msw';
-import { MOCK_USER } from '../data/fixtures';
-
-const API_BASE = 'http://localhost:8080/api';
-
-const TAKEN_NICKNAMES = ['taken', 'admin', '관리자'];
+import { MOCK_API_BASE, MOCK_USER, TAKEN_NICKNAMES } from '../data/fixtures';
 
 export const userHandlers = [
-  // 내 프로필 조회
-  http.get(`${API_BASE}/users/me`, () => {
+  http.get(`${MOCK_API_BASE}/users/me`, () => {
     return HttpResponse.json({
       success: true,
       data: MOCK_USER,
     });
   }),
 
-  // 프로필 셋업 (온보딩)
-  http.post(`${API_BASE}/users/me/setup`, async ({ request }) => {
+  http.post(`${MOCK_API_BASE}/users/me/setup`, async ({ request }) => {
     const body = (await request.json()) as { nickname: string };
 
-    if (TAKEN_NICKNAMES.includes(body.nickname)) {
+    if (TAKEN_NICKNAMES.includes(body.nickname as (typeof TAKEN_NICKNAMES)[number])) {
       return HttpResponse.json(
         {
           success: false,
@@ -34,31 +28,30 @@ export const userHandlers = [
     });
   }),
 
-  // 닉네임 중복 체크
-  http.get(`${API_BASE}/users/check-nickname`, ({ request }) => {
+  http.get(`${MOCK_API_BASE}/users/check-nickname`, ({ request }) => {
     const url = new URL(request.url);
     const nickname = url.searchParams.get('nickname') ?? '';
 
     return HttpResponse.json({
       success: true,
-      data: { available: !TAKEN_NICKNAMES.includes(nickname) },
+      data: {
+        available: !TAKEN_NICKNAMES.includes(nickname as (typeof TAKEN_NICKNAMES)[number]),
+      },
     });
   }),
 
-  // 유저 목록
-  http.get(`${API_BASE}/users`, () => {
+  http.get(`${MOCK_API_BASE}/users`, () => {
     return HttpResponse.json({
       success: true,
       data: { items: [MOCK_USER], nextCursor: null, hasMore: false },
     });
   }),
 
-  // 프로필 수정
-  http.patch(`${API_BASE}/users/me`, async ({ request }) => {
-    const body = await request.json();
+  http.patch(`${MOCK_API_BASE}/users/me`, async ({ request }) => {
+    const body = (await request.json()) as Partial<typeof MOCK_USER>;
     return HttpResponse.json({
       success: true,
-      data: { ...MOCK_USER, ...(body as Record<string, unknown>) },
+      data: { ...MOCK_USER, ...body },
     });
   }),
 ];

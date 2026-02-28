@@ -1,6 +1,8 @@
 import type { User } from '@chingu-dachi/shared';
 
+export const MOCK_API_BASE = 'http://localhost:8080/api';
 export const MOCK_ACCESS_TOKEN = 'mock-access-token-abc123';
+export const TAKEN_NICKNAMES = ['taken', 'admin', '관리자'] as const;
 
 export const MOCK_USER: User = {
   userId: 'user-001',
@@ -30,5 +32,7 @@ export const MOCK_NEW_USER: User = {
   bio: null,
   city: null,
   interests: [],
+  isOnline: false,
+  creditBalance: 0,
   onboardingRequired: true,
 };
