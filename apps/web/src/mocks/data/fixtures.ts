@@ -44,7 +44,13 @@ export const MOCK_NEW_USER: User = {
 export const mockState = {
   get currentUser(): User | null {
     const stored = sessionStorage.getItem('msw:currentUser');
-    return stored ? (JSON.parse(stored) as User) : null;
+    if (!stored) return null;
+    try {
+      return JSON.parse(stored) as User;
+    } catch {
+      sessionStorage.removeItem('msw:currentUser');
+      return null;
+    }
   },
   set currentUser(user: User | null) {
     if (user) {
