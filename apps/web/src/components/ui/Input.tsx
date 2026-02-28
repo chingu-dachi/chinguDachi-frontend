@@ -34,7 +34,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             className,
           )}
           aria-invalid={!!error}
-          aria-describedby={error ? `${inputId}-error` : undefined}
+          aria-describedby={error ? `${inputId}-error` : success ? `${inputId}-success` : undefined}
           {...props}
         />
         <div className="flex items-center justify-between">
@@ -43,7 +43,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               {error}
             </p>
           ) : success ? (
-            <p className="text-caption text-success">
+            <p id={`${inputId}-success`} className="text-caption text-success" aria-live="polite">
               {success}
             </p>
           ) : null}

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCheckNickname } from '@chingu-dachi/store';
 import { Input } from '@/components/ui';
@@ -29,10 +29,12 @@ export function NicknameInput({
   const isAvailable = data?.success && data.data.available;
   const isTaken = data?.success && !data.data.available;
   const isValid = isLengthValid && isAvailable === true && !isFetching;
+  const onValidationRef = useRef(onValidation);
+  onValidationRef.current = onValidation;
 
   useEffect(() => {
-    onValidation?.(isValid);
-  }, [isValid, onValidation]);
+    onValidationRef.current?.(isValid);
+  }, [isValid]);
 
   function getCheckResult(): { error?: string; success?: string } {
     if (externalError) return { error: externalError };
