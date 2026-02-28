@@ -1,6 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useCheckNickname } from '@chingu-dachi/store';
 import { Input } from '@/components/ui';
+import { useDebounce } from '@/hooks/useDebounce';
+
+const NICKNAME_DEBOUNCE_MS = 300;
+const MIN_LENGTH = 2;
+const MAX_LENGTH = 12;
 
 interface NicknameInputProps {
   value: string;
@@ -16,24 +22,28 @@ export function NicknameInput({
   onValidation,
 }: NicknameInputProps) {
   const { t } = useTranslation('auth');
-  const [checkResult, setCheckResult] = useState<string | undefined>();
+  const debouncedNickname = useDebounce(value.trim(), NICKNAME_DEBOUNCE_MS);
+  const { data, isFetching } = useCheckNickname(debouncedNickname);
 
-  // 디바운스 중복 체크 (MVP: 클라이언트 검증만, 서버 연동은 api 연결 시)
+  const isLengthValid = value.length >= MIN_LENGTH && value.length <= MAX_LENGTH;
+  const isAvailable = data?.success && data.data.available;
+  const isTaken = data?.success && !data.data.available;
+  const isValid = isLengthValid && isAvailable === true && !isFetching;
+
   useEffect(() => {
-    if (value.length < 2) {
-      setCheckResult(undefined);
-      onValidation?.(false);
-      return;
-    }
+    onValidation?.(isValid);
+  }, [isValid, onValidation]);
 
-    const timer = setTimeout(() => {
-      // TODO: useCheckNickname API 연동
-      setCheckResult(undefined);
-      onValidation?.(value.length >= 2 && value.length <= 12);
-    }, 300);
+  function getCheckResult(): { error?: string; success?: string } {
+    if (externalError) return { error: externalError };
+    if (!isLengthValid || isFetching) return {};
+    if (debouncedNickname !== value.trim()) return {};
+    if (isTaken) return { error: t('nicknameTaken') };
+    if (isAvailable) return { success: t('nicknameAvailable') };
+    return {};
+  }
 
-    return () => clearTimeout(timer);
-  }, [value, onValidation]);
+  const { error, success } = getCheckResult();
 
   return (
     <Input
@@ -41,9 +51,10 @@ export function NicknameInput({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={t('nicknamePlaceholder')}
-      maxLength={12}
-      error={externalError ?? checkResult}
-      counter={{ current: value.length, max: 12 }}
+      maxLength={MAX_LENGTH}
+      error={error}
+      success={success}
+      counter={{ current: value.length, max: MAX_LENGTH }}
     />
   );
 }
