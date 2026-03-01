@@ -1,6 +1,6 @@
 export type Nationality = 'KR' | 'JP';
 
-export type NativeLanguage = 'ko' | 'ja';
+export type TranslateLanguage = 'ko' | 'ja';
 
 export type InterestTagId =
   | 'travel'
@@ -25,7 +25,7 @@ export interface User {
   nickname: string;
   profileImageUrl: string | null;
   nationality: Nationality;
-  nativeLanguage: NativeLanguage;
+  translateLanguage: TranslateLanguage;
   birthYear: number;
   interests: InterestTagId[];
   bio: string | null;
